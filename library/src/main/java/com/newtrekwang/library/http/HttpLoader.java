@@ -1,4 +1,4 @@
-package com.newtrekwang.library;
+package com.newtrekwang.library.http;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,6 +7,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.widget.ImageView;
+
+import com.newtrekwang.library.cache.ImageCache;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -26,14 +28,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 
 public class HttpLoader {
-
+    // 图片加载策略
     private ImageCache mImageCache;
-
-    public static final int MESSAGE_POST_RESULT = 1;
+    // cpu核心数
     public static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
+    // 核心线程
     public static final int CORE_POOL_SIZE = CPU_COUNT +1;
+    // 最多线程
     public static final int MAXIMUM_POOL_SIZE = CPU_COUNT *2 +1;
+    // 保持时间
     public static final long KEEP_ALIVE = 10L;
+    // 缓冲区大小
     public static final int IO_BUFFER_SIZE = 8 * 1024;
 
     public HttpLoader(ImageCache mImageCache) {
@@ -57,7 +62,9 @@ public class HttpLoader {
             TimeUnit.SECONDS,
             new LinkedBlockingDeque<Runnable>(),
             sThreadFactory);
-
+    /**
+     * 主线程处理加载结果
+     */
     private Handler mMainHandler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg) {
@@ -71,6 +78,11 @@ public class HttpLoader {
         }
     };
 
+    /**
+     * post 一个 网络加载任务
+     * @param url
+     * @param imageView
+     */
     public void postLoadTask(final String url,final ImageView imageView){
         Runnable loadBitmapTask = new Runnable() {
             @Override
@@ -87,6 +99,11 @@ public class HttpLoader {
         THREAD_POOL_EXECUTOR.execute(loadBitmapTask);
     }
 
+    /**
+     * 下载图片
+     * @param url
+     * @return
+     */
     private Bitmap downloadBitmapFromUrl (String url){
         Bitmap bitmap = null;
         HttpURLConnection urlConnection = null;
@@ -115,6 +132,9 @@ public class HttpLoader {
         return bitmap;
     }
 
+    /**
+     * 加载结果，跨线程通信消息载体
+     */
     private static class LoaderResult{
         public ImageView imageView;
         public String uri;

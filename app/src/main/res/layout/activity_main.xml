@@ -12,7 +12,12 @@
         android:layout_height="300dp" />
     <Button
         android:layout_width="match_parent"
-        android:text="开始加载"
-        android:id="@+id/main_btn"
+        android:text="加载网络图"
+        android:id="@+id/main_btn_loadUrl"
+        android:layout_height="wrap_content" />
+    <Button
+        android:layout_width="match_parent"
+        android:text="加载内部资源图"
+        android:id="@+id/main_btn_loadRes"
         android:layout_height="wrap_content" />
 </LinearLayout>
